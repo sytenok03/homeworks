@@ -1,7 +1,7 @@
 from fastavro import writer, parse_schema
 import json
 from pathlib import Path
-from datetime import datetime
+
 
 # Avro схема
 AVRO_SCHEMA = {
@@ -43,16 +43,21 @@ def read_json_files(raw_dir):
 def write_avro_file(data, stg_dir):
     """Записує дані у форматі Avro"""
     stg_path = Path(stg_dir)
+    
+    # Створюємо папку якщо не існує
     stg_path.mkdir(parents=True, exist_ok=True)
     
-    # Створюємо ім'я файлу
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    avro_file = stg_path / f"sales_{timestamp}.avro"
+    # Витягуємо дату з шляху (останній елемент)
+    # Наприклад: /path/to/stg/sales/2022-08-09 → 2022-08-09
+    date = stg_path.name
+    
+    # Формуємо ім'я файлу з датою з директорії
+    avro_file = stg_path / f"sales_{date}.avro"
     
     # Парсимо схему
     parsed_schema = parse_schema(AVRO_SCHEMA)
     
-    # Записуємо дані в Avro
+    # Записуємо дані в Avro формат
     with open(avro_file, 'wb') as out:
         writer(out, parsed_schema, data)
     
